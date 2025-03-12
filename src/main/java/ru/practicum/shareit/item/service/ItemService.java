@@ -1,0 +1,46 @@
+package ru.practicum.shareit.item.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.InMemoryItemStorage;
+import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.storage.InMemoryUserStorage;
+import ru.practicum.shareit.user.storage.UserStorage;
+
+import java.util.List;
+
+@Service
+public class ItemService {
+    private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
+
+    @Autowired
+    public ItemService(InMemoryItemStorage itemStorage, InMemoryUserStorage userStorage) {
+        this.itemStorage = itemStorage;
+        this.userStorage = userStorage;
+    }
+
+    public List<Item> getUserItems(Integer userId) {
+        return itemStorage.getUsersItems(userId);
+    }
+
+    public List<Item> getItemsByCaption(String caption) {
+        return itemStorage.getItemsByText(caption);
+    }
+
+    public Item getItemById(Integer itemId) {
+        return itemStorage.getItemById(itemId);
+    }
+
+    public Item addItem(Integer userId, ItemDto itemDto) {
+        User owner = userStorage.getFullUserById(userId);
+        return itemStorage.addNewItem(owner, itemDto, null);
+    }
+
+    public Item updateItem(Integer userId, ItemDto item, int itemId) {
+        return itemStorage.updateItem(userId, item, itemId);
+    }
+}
