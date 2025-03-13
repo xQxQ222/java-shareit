@@ -46,12 +46,6 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Item addNewItem(User owner, ItemDto item, ItemRequest request) {
-        if (item.getName().isBlank()) {
-            throw new ValidationException("Название предмета пустое");
-        }
-        if (item.getDescription().isBlank()) {
-            throw new ValidationException("Описание предмета пустое");
-        }
         int newId = getNextItemId();
         Item addedItem = ItemMapper.toRegularModel(newId, item, owner, request);
         items.put(newId, addedItem);
