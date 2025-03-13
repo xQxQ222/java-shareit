@@ -1,27 +1,21 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.InMemoryItemStorage;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ItemService {
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
 
-    @Autowired
-    public ItemService(InMemoryItemStorage itemStorage, InMemoryUserStorage userStorage) {
-        this.itemStorage = itemStorage;
-        this.userStorage = userStorage;
-    }
 
     public List<Item> getUserItems(Integer userId) {
         return itemStorage.getUsersItems(userId);

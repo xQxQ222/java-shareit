@@ -13,25 +13,25 @@ import ru.practicum.shareit.exception.exceptions.ValidationException;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponce handleAlreadyExists(final AlreadyExistsException e) {
-        return new ErrorResponce("Объект уже существует!", e.getMessage());
+    public ErrorResponse handleAlreadyExists(final AlreadyExistsException e) {
+        return new ErrorResponse("Объект уже существует!", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponce handleNotFound(final NotFoundException e) {
-        return new ErrorResponce("Объект не найден в хранилище", e.getMessage());
+    public ErrorResponse handleNotFound(final NotFoundException e) {
+        return new ErrorResponse("Объект не найден в хранилище", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponce handleNotOwner(final NotOwnerException e) {
-        return new ErrorResponce("Предмет не имеет владельца", e.getMessage());
+    public ErrorResponse handleNotOwner(final NotOwnerException e) {
+        return new ErrorResponse("Предмет не имеет владельца", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponce handleValidation(final ValidationException e) {
-        return new ErrorResponce("Ошибка в запросе", e.getMessage());
+    public ErrorResponse handleValidation(final ValidationException e) {
+        return new ErrorResponse("Ошибка в запросе", e.getMessage());
     }
 }

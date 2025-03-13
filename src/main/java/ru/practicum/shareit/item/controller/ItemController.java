@@ -1,8 +1,8 @@
 package ru.practicum.shareit.item.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -14,14 +14,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @Slf4j
+@RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
 
-    @Autowired
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
 
     @GetMapping
     public List<Item> getAllUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
@@ -56,7 +53,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public Item updateItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody ItemDto itemToUpdate, @PathVariable int itemId) {
+    public Item updateItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestBody ItemDto itemToUpdate, @PathVariable int itemId) {
         log.info("Пришел PATCH запрос /items от пользователя с id: {} с телом: {}", userId, itemToUpdate);
         Item item = itemService.updateItem(userId, itemToUpdate, itemId);
         log.info("Отправлен ответ на PATCH запрос /items: {}", item);
