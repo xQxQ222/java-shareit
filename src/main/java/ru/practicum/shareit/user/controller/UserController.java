@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
+    @Qualifier("DBUser")
     private final UserService userService;
 
 

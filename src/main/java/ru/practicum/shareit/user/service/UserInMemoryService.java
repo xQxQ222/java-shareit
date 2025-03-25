@@ -8,9 +8,9 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
 
-@Service
+@Service("inMemoryUser")
 @RequiredArgsConstructor
-public class UserService {
+public class UserInMemoryService implements UserService {
     private final UserStorage userStorage;
 
 

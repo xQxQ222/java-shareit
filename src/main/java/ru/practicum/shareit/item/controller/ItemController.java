@@ -4,7 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoToShow;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -19,19 +22,18 @@ public class ItemController {
 
     private final ItemService itemService;
 
-
     @GetMapping
-    public List<Item> getAllUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemDtoToShow> getAllUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
         log.info("Пришел GET запрос /items от пользователя с id: {}", userId);
-        List<Item> items = itemService.getUserItems(userId);
+        List<ItemDtoToShow> items = itemService.getUserItems(userId);
         log.info("Отправлен ответ на GET запрос /items: {}", items);
         return items;
     }
 
     @GetMapping("/{itemId}")
-    public Item getItemById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId) {
+    public ItemDtoToShow getItemById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId) {
         log.info("Пришел GET запрос /items/{} от пользователя с id: {}", itemId, userId);
-        Item item = itemService.getItemById(itemId);
+        ItemDtoToShow item = itemService.getItemById(itemId);
         log.info("Отправлен ответ на GET запрос /items/{}: {}", itemId, item);
         return item;
     }
@@ -50,6 +52,14 @@ public class ItemController {
         Item item = itemService.addItem(userId, itemDto);
         log.info("Отправлен ответ на POST запрос /items: {}", item);
         return item;
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public Comment addNewComment(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId, @RequestBody CommentDto dto) {
+        log.info("Пришел POST запрос /items/{}/comment от пользователя с id: {} с телом: {}", itemId, userId, dto);
+        Comment comment = itemService.addComment(userId, dto, itemId);
+        log.info("Отправлен ответ на POST запрос /items/{}/comment: {}", itemId, comment);
+        return comment;
     }
 
     @PatchMapping("/{itemId}")
