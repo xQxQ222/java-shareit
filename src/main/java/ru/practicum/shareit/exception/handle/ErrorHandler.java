@@ -1,8 +1,8 @@
 package ru.practicum.shareit.exception.handle;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.exceptions.AlreadyExistsException;
 import ru.practicum.shareit.exception.exceptions.NotFoundException;
@@ -12,26 +12,22 @@ import ru.practicum.shareit.exception.exceptions.ValidationException;
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleAlreadyExists(final AlreadyExistsException e) {
-        return new ErrorResponse("Объект уже существует!", e.getMessage());
+    public ResponseEntity<String> handleAlreadyExists(final AlreadyExistsException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(final NotFoundException e) {
-        return new ErrorResponse("Объект не найден в хранилище", e.getMessage());
+    public ResponseEntity<String> handleNotFound(final NotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleNotOwner(final NotOwnerException e) {
-        return new ErrorResponse("Предмет не имеет владельца", e.getMessage());
+    public ResponseEntity<String> handleNotOwner(final NotOwnerException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(final ValidationException e) {
-        return new ErrorResponse("Ошибка в запросе", e.getMessage());
+    public ResponseEntity<String> handleValidation(final ValidationException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
