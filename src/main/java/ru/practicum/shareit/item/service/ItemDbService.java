@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.exceptions.FalseBookerException;
 import ru.practicum.shareit.exception.exceptions.NotFoundException;
 import ru.practicum.shareit.exception.exceptions.NotOwnerException;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentShowDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoToShow;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -23,6 +24,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service("DBItem")
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class ItemDbService implements ItemService {
     @Override
     public List<ItemDtoToShow> getUserItems(Integer userId) {
         return itemRepository.findByOwnerId(userId).stream()
-                .map(item -> getItemById(item.getId()))
+                .map(item -> getItemById(item.getId(), userId))
                 .toList();
     }
 
@@ -50,11 +52,11 @@ public class ItemDbService implements ItemService {
     }
 
     @Override
-    public ItemDtoToShow getItemById(Integer itemId) {
+    public ItemDtoToShow getItemById(Integer itemId, Integer userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
         LocalDateTime now = LocalDateTime.now();
-        Booking lastBooking = bookingRepository.findByItemIdAndEndAfterOrderByStartAsc(itemId, now).isEmpty() ? null : bookingRepository.findByItemIdAndEndAfterOrderByStartAsc(itemId, now).getLast();
-        Booking nextBooking = bookingRepository.findByItemIdAndStartBeforeOrderByStartAsc(itemId, now).isEmpty() ? null : bookingRepository.findByItemIdAndStartBeforeOrderByStartAsc(itemId, now).getFirst();
+        Booking lastBooking = bookingRepository.findWhereAfterEnd(itemId, now).isEmpty() || !userId.equals(item.getOwner().getId()) ? null : bookingRepository.findWhereAfterEnd(itemId, now).getLast();
+        Booking nextBooking = bookingRepository.findWhereStartBefore(itemId, now).isEmpty() || !userId.equals(item.getOwner().getId()) ? null : bookingRepository.findWhereStartBefore(itemId, now).getFirst();
         List<Comment> itemComments = commentRepository.findByItemId(itemId);
         return ItemMapper.toWatchModel(item, lastBooking, nextBooking, itemComments);
     }
@@ -66,6 +68,7 @@ public class ItemDbService implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item updateItem(Integer userId, ItemDto item, int itemId) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
@@ -88,18 +91,19 @@ public class ItemDbService implements ItemService {
 
     @Override
     @Transactional
-    public Comment addComment(Integer authorId, CommentDto dto, Integer itemId) {
+    public CommentShowDto addComment(Integer authorId, CommentDto dto, Integer itemId) {
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
         List<Booking> commentAuthorBookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartAsc(authorId, LocalDateTime.now()).stream()
-                .filter(booking -> booking.getItem().getId() == itemId)
+                .filter(booking -> Objects.equals(booking.getItem().getId(), itemId))
                 .toList();
         if (commentAuthorBookings.isEmpty()) {
             throw new FalseBookerException("Данный пользователь не брал в аренду данный предмет, либо аренда еще не закончилась");
         }
-        Comment newComment = CommentMapper.toRegularModel(0, author, dto, item, LocalDateTime.now());
-        return commentRepository.save(newComment);
+        Comment newComment = CommentMapper.toRegularModel(null, author, dto, item, LocalDateTime.now());
+        Comment dbComment = commentRepository.save(newComment);
+        return CommentMapper.toShowDto(dbComment);
     }
 }

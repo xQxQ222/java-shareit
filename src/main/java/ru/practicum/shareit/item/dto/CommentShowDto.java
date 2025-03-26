@@ -1,0 +1,14 @@
+package ru.practicum.shareit.item.dto;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+public class CommentShowDto {
+    private final int id;
+    private final String text;
+    private final String authorName;
+    private final String itemName;
+    private final LocalDateTime created;
+}

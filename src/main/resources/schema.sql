@@ -24,9 +24,7 @@ CREATE TABLE IF NOT EXISTS Bookings(
     status VARCHAR(20),
     FOREIGN KEY (item_id) REFERENCES Items(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (booker_id) REFERENCES Users(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT end_after_start CHECK (end_date>start_date),
-    CONSTRAINT check_start_before_now CHECK (start_date > NOW()),
-    CONSTRAINT check_end_before_now CHECK (end_date > NOW())
+    CONSTRAINT end_after_start CHECK (end_date>start_date)
 );
 
 CREATE TABLE IF NOT EXISTS Requests(

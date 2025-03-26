@@ -3,9 +3,9 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentShowDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoToShow;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
@@ -28,7 +28,7 @@ public class ItemInMemoryService implements ItemService {
         return itemStorage.getItemsByText(caption);
     }
 
-    public ItemDtoToShow getItemById(Integer itemId) {
+    public ItemDtoToShow getItemById(Integer itemId, Integer userId) {
         return null;
     }
 
@@ -42,7 +42,7 @@ public class ItemInMemoryService implements ItemService {
     }
 
     @Override
-    public Comment addComment(Integer authorId, CommentDto dto, Integer itemId) {
+    public CommentShowDto addComment(Integer authorId, CommentDto dto, Integer itemId) {
         return null;
     }
 }

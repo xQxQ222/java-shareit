@@ -16,7 +16,7 @@ import ru.practicum.shareit.user.model.User;
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String name;
     private String description;
     @Column(name = "is_available")

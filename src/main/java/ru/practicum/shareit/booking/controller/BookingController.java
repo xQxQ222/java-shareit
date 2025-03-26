@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Slf4j
 public class BookingController {
 
     private final BookingService bookingService;
@@ -38,7 +40,10 @@ public class BookingController {
 
     @PostMapping
     public Booking addNewBooking(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody BookingDto bookingDto) {
-        return bookingService.createBooking(bookingDto, userId);
+        log.info("Пришел POST запрос /bookings на добавление нового бронирования от пользователя с id {} с телом: {}", userId, bookingDto);
+        Booking newBooking = bookingService.createBooking(bookingDto, userId);
+        log.info("Добавлено новое бронирование: {}", newBooking);
+        return newBooking;
     }
 
 }

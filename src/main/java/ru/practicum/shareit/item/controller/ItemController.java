@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentShowDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoToShow;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -33,7 +33,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDtoToShow getItemById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId) {
         log.info("Пришел GET запрос /items/{} от пользователя с id: {}", itemId, userId);
-        ItemDtoToShow item = itemService.getItemById(itemId);
+        ItemDtoToShow item = itemService.getItemById(itemId, userId);
         log.info("Отправлен ответ на GET запрос /items/{}: {}", itemId, item);
         return item;
     }
@@ -55,9 +55,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public Comment addNewComment(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId, @RequestBody CommentDto dto) {
+    public CommentShowDto addNewComment(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId, @RequestBody CommentDto dto) {
         log.info("Пришел POST запрос /items/{}/comment от пользователя с id: {} с телом: {}", itemId, userId, dto);
-        Comment comment = itemService.addComment(userId, dto, itemId);
+        CommentShowDto comment = itemService.addComment(userId, dto, itemId);
         log.info("Отправлен ответ на POST запрос /items/{}/comment: {}", itemId, comment);
         return comment;
     }
