@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class BookingDto {
+public class BookingRequestDto {
     private final Integer itemId;
     private final LocalDateTime start;
     private final LocalDateTime end;

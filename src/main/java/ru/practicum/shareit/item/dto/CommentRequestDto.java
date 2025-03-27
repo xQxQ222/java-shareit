@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CommentDto {
+public class CommentRequestDto {
     private Long id;
     @NotBlank(message = "Комментарий не должен быть пустым")
     private String text;

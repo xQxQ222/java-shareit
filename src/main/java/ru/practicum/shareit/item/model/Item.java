@@ -20,7 +20,7 @@ public class Item {
     private String name;
     private String description;
     @Column(name = "is_available")
-    private boolean available;
+    private Boolean available;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;

@@ -2,10 +2,10 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentShowDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoToShow;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
@@ -20,7 +20,7 @@ public class ItemInMemoryService implements ItemService {
     private final UserStorage userStorage;
 
 
-    public List<ItemDtoToShow> getUserItems(Integer userId) {
+    public List<ItemResponseDto> getUserItems(Integer userId) {
         return null;
     }
 
@@ -28,21 +28,31 @@ public class ItemInMemoryService implements ItemService {
         return itemStorage.getItemsByText(caption);
     }
 
-    public ItemDtoToShow getItemById(Integer itemId, Integer userId) {
+    public ItemResponseDto getItemById(Integer itemId, Integer userId) {
         return null;
     }
 
-    public Item addItem(Integer userId, ItemDto itemDto) {
-        User owner = userStorage.getFullUserById(userId);
-        return itemStorage.addNewItem(owner, itemDto, null);
+    @Override
+    public Item addItem(Integer userId, Item item) {
+        return null;
     }
 
-    public Item updateItem(Integer userId, ItemDto item, int itemId) {
+    @Override
+    public Item updateItem(Integer userId, Item item) {
+        return null;
+    }
+
+    public Item addItem(Integer userId, ItemRequestDto itemRequestDto) {
+        User owner = userStorage.getFullUserById(userId);
+        return itemStorage.addNewItem(owner, itemRequestDto, null);
+    }
+
+    public Item updateItem(Integer userId, ItemRequestDto item, int itemId) {
         return itemStorage.updateItem(userId, item, itemId);
     }
 
     @Override
-    public CommentShowDto addComment(Integer authorId, CommentDto dto, Integer itemId) {
+    public CommentResponseDto addComment(Integer authorId, Comment dto, Integer itemId) {
         return null;
     }
 }

@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentShowDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -9,7 +9,7 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 
 public class CommentMapper {
-    public static Comment toRegularModel(Integer id, User author, CommentDto dto, Item item, LocalDateTime createDate) {
+    public static Comment toDomainModel(Integer id, User author, CommentRequestDto dto, Item item, LocalDateTime createDate) {
         return new Comment(
                 id,
                 dto.getText(),
@@ -19,8 +19,8 @@ public class CommentMapper {
         );
     }
 
-    public static CommentShowDto toShowDto(Comment comment) {
-        return new CommentShowDto(
+    public static CommentResponseDto toResponseDto(Comment comment) {
+        return new CommentResponseDto(
                 comment.getId(),
                 comment.getText(),
                 comment.getAuthor().getName(),

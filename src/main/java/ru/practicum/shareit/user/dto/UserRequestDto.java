@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserDto {
+public class UserRequestDto {
     @NotBlank
     private final String name;
     @Email

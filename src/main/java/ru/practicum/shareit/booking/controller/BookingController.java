@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
@@ -39,9 +41,9 @@ public class BookingController {
     }
 
     @PostMapping
-    public Booking addNewBooking(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody BookingDto bookingDto) {
-        log.info("Пришел POST запрос /bookings на добавление нового бронирования от пользователя с id {} с телом: {}", userId, bookingDto);
-        Booking newBooking = bookingService.createBooking(bookingDto, userId);
+    public Booking addNewBooking(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody BookingRequestDto bookingRequestDto) {
+        log.info("Пришел POST запрос /bookings на добавление нового бронирования от пользователя с id {} с телом: {}", userId, bookingRequestDto);
+        Booking newBooking = bookingService.createBooking(BookingMapper.toDomainModel(null, bookingRequestDto, null, null, BookingStatus.WAITING), userId, bookingRequestDto.getItemId());
         log.info("Добавлено новое бронирование: {}", newBooking);
         return newBooking;
     }

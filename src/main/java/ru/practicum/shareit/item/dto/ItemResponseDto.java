@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class ItemDtoToShow {
+public class ItemResponseDto {
     private final int id;
     private final String name;
     private final String description;

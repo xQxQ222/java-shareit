@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.exceptions.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -14,15 +14,15 @@ import java.util.List;
 @Service("DBUser")
 @Primary
 @RequiredArgsConstructor
-public class UserDbService implements UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
 
     @Override
-    public List<UserDto> getAllUsers() {
+    public List<UserRequestDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(UserMapper::toDto)
                 .toList();
     }
 
@@ -33,8 +33,8 @@ public class UserDbService implements UserService {
     }
 
     @Override
-    public User addNewUser(UserDto newUser) {
-        return userRepository.save(UserMapper.toRegularModel(newUser, 0));
+    public User addNewUser(User newUser) {
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class UserDbService implements UserService {
     }
 
     @Override
-    public User updateUser(UserDto user, int userId) {
-        User userFromDb = userRepository.findById(userId)
+    public User updateUser(User user) {
+        User userFromDb = userRepository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("Такого пользователя нет в БД"));
         if (user.getName() != null && !user.getName().isBlank()) {
             userFromDb.setName(user.getName());

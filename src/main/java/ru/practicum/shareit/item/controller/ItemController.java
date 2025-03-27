@@ -4,13 +4,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentShowDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoToShow;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -23,17 +26,17 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDtoToShow> getAllUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemResponseDto> getAllUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
         log.info("Пришел GET запрос /items от пользователя с id: {}", userId);
-        List<ItemDtoToShow> items = itemService.getUserItems(userId);
+        List<ItemResponseDto> items = itemService.getUserItems(userId);
         log.info("Отправлен ответ на GET запрос /items: {}", items);
         return items;
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoToShow getItemById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId) {
+    public ItemResponseDto getItemById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId) {
         log.info("Пришел GET запрос /items/{} от пользователя с id: {}", itemId, userId);
-        ItemDtoToShow item = itemService.getItemById(itemId, userId);
+        ItemResponseDto item = itemService.getItemById(itemId, userId);
         log.info("Отправлен ответ на GET запрос /items/{}: {}", itemId, item);
         return item;
     }
@@ -47,25 +50,25 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item addNewItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody ItemDto itemDto) {
-        log.info("Пришел POST запрос /items от пользователя с id: {} с телом: {}", userId, itemDto);
-        Item item = itemService.addItem(userId, itemDto);
+    public Item addNewItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody ItemRequestDto itemRequestDto) {
+        log.info("Пришел POST запрос /items от пользователя с id: {} с телом: {}", userId, itemRequestDto);
+        Item item = itemService.addItem(userId, ItemMapper.toDomainModel(null, itemRequestDto, null, null));
         log.info("Отправлен ответ на POST запрос /items: {}", item);
         return item;
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentShowDto addNewComment(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId, @RequestBody CommentDto dto) {
+    public CommentResponseDto addNewComment(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId, @RequestBody CommentRequestDto dto) {
         log.info("Пришел POST запрос /items/{}/comment от пользователя с id: {} с телом: {}", itemId, userId, dto);
-        CommentShowDto comment = itemService.addComment(userId, dto, itemId);
+        CommentResponseDto comment = itemService.addComment(userId, CommentMapper.toDomainModel(null, null, dto, null, LocalDateTime.now()), itemId);
         log.info("Отправлен ответ на POST запрос /items/{}/comment: {}", itemId, comment);
         return comment;
     }
 
     @PatchMapping("/{itemId}")
-    public Item updateItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestBody ItemDto itemToUpdate, @PathVariable int itemId) {
+    public Item updateItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestBody ItemRequestDto itemToUpdate, @PathVariable int itemId) {
         log.info("Пришел PATCH запрос /items от пользователя с id: {} с телом: {}", userId, itemToUpdate);
-        Item item = itemService.updateItem(userId, itemToUpdate, itemId);
+        Item item = itemService.updateItem(userId, ItemMapper.toDomainModel(itemId, itemToUpdate, null, null));
         log.info("Отправлен ответ на PATCH запрос /items: {}", item);
         return item;
     }

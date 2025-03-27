@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.storage;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.exceptions.NotFoundException;
 import ru.practicum.shareit.exception.exceptions.NotOwnerException;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
@@ -39,20 +39,20 @@ public class InMemoryItemStorage implements ItemStorage {
         }
         return items.values().stream()
                 .filter(item -> item.getName().toUpperCase().contains(caption.toUpperCase()) || item.getDescription().toUpperCase().contains(caption.toUpperCase()))
-                .filter(Item::isAvailable)
+                .filter(Item::getAvailable)
                 .toList();
     }
 
     @Override
-    public Item addNewItem(User owner, ItemDto item, ItemRequest request) {
+    public Item addNewItem(User owner, ItemRequestDto item, ItemRequest request) {
         int newId = getNextItemId();
-        Item addedItem = ItemMapper.toRegularModel(newId, item, owner, request);
+        Item addedItem = ItemMapper.toDomainModel(newId, item, owner, request);
         items.put(newId, addedItem);
         return addedItem;
     }
 
     @Override
-    public Item updateItem(Integer userId, ItemDto itemDto, int itemId) {
+    public Item updateItem(Integer userId, ItemRequestDto itemRequestDto, int itemId) {
         if (!items.containsKey(itemId)) {
             throw new NotFoundException("Предмет с id " + itemId + " не найден в хранилище");
         }
@@ -60,16 +60,16 @@ public class InMemoryItemStorage implements ItemStorage {
         if (itemFromCollection.getOwner().getId() != userId) {
             throw new NotOwnerException("Пользователь с id " + userId + " не является владельцем " + itemFromCollection.getName());
         }
-        if (itemDto.getDescription() == null) {
-            itemDto.setDescription(itemFromCollection.getDescription());
+        if (itemRequestDto.getDescription() == null) {
+            itemRequestDto.setDescription(itemFromCollection.getDescription());
         }
-        if (itemDto.getName() == null) {
-            itemDto.setName(itemFromCollection.getName());
+        if (itemRequestDto.getName() == null) {
+            itemRequestDto.setName(itemFromCollection.getName());
         }
-        if (itemDto.getAvailable() == null) {
-            itemDto.setAvailable(itemFromCollection.isAvailable());
+        if (itemRequestDto.getAvailable() == null) {
+            itemRequestDto.setAvailable(itemFromCollection.getAvailable());
         }
-        Item newItem = ItemMapper.toRegularModel(itemId, itemDto, itemFromCollection.getOwner(), itemFromCollection.getRequest());
+        Item newItem = ItemMapper.toDomainModel(itemId, itemRequestDto, itemFromCollection.getOwner(), itemFromCollection.getRequest());
         items.put(itemId, newItem);
         return newItem;
     }

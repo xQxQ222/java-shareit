@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ItemDto {
+public class ItemRequestDto {
     @NotBlank
     private String name;
     @NotBlank

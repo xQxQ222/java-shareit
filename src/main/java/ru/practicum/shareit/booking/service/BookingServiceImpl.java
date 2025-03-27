@@ -2,8 +2,6 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -21,23 +19,24 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BookingDbService implements BookingService {
+public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
     @Override
-    public Booking createBooking(BookingDto bookingDto, int bookerId) {
+    public Booking createBooking(Booking booking, int bookerId, int itemId) {
         User booker = userRepository.findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
-        Item itemToBook = itemRepository.findById(bookingDto.getItemId())
+        booking.setBooker(booker);
+        Item itemToBook = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден в БД"));
-        if (!itemToBook.isAvailable()) {
+        if (!itemToBook.getAvailable()) {
             throw new ItemNotAvailable("Данный предмет не доступен для брони");
         }
-        Booking booking = BookingMapper.toRegularModel(0, bookingDto,
-                booker, itemToBook, BookingStatus.WAITING);
+        booking.setItem(itemToBook);
+
         return bookingRepository.save(booking);
     }
 

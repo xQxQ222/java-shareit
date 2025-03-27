@@ -9,10 +9,8 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.exceptions.FalseBookerException;
 import ru.practicum.shareit.exception.exceptions.NotFoundException;
 import ru.practicum.shareit.exception.exceptions.NotOwnerException;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentShowDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoToShow;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -29,7 +27,7 @@ import java.util.Objects;
 @Service("DBItem")
 @RequiredArgsConstructor
 @Primary
-public class ItemDbService implements ItemService {
+public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -37,7 +35,7 @@ public class ItemDbService implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public List<ItemDtoToShow> getUserItems(Integer userId) {
+    public List<ItemResponseDto> getUserItems(Integer userId) {
         return itemRepository.findByOwnerId(userId).stream()
                 .map(item -> getItemById(item.getId(), userId))
                 .toList();
@@ -52,27 +50,30 @@ public class ItemDbService implements ItemService {
     }
 
     @Override
-    public ItemDtoToShow getItemById(Integer itemId, Integer userId) {
+    public ItemResponseDto getItemById(Integer itemId, Integer userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
         LocalDateTime now = LocalDateTime.now();
         Booking lastBooking = bookingRepository.findWhereAfterEnd(itemId, now).isEmpty() || !userId.equals(item.getOwner().getId()) ? null : bookingRepository.findWhereAfterEnd(itemId, now).getLast();
         Booking nextBooking = bookingRepository.findWhereStartBefore(itemId, now).isEmpty() || !userId.equals(item.getOwner().getId()) ? null : bookingRepository.findWhereStartBefore(itemId, now).getFirst();
         List<Comment> itemComments = commentRepository.findByItemId(itemId);
-        return ItemMapper.toWatchModel(item, lastBooking, nextBooking, itemComments);
-    }
-
-    @Override
-    public Item addItem(Integer userId, ItemDto itemDto) {
-        User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
-        return itemRepository.save(ItemMapper.toRegularModel(0, itemDto, owner, null));
+        return ItemMapper.toResponseDto(item, lastBooking, nextBooking, itemComments);
     }
 
     @Override
     @Transactional
-    public Item updateItem(Integer userId, ItemDto item, int itemId) {
+    public Item addItem(Integer userId, Item item) {
+        User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
+        item.setOwner(owner);
+        return itemRepository.save(item);
+    }
+
+    @Override
+    @Transactional
+    public Item updateItem(Integer userId, Item item) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
-        Item itemFromDb = itemRepository.findById(itemId)
+        item.setOwner(owner);
+        Item itemFromDb = itemRepository.findById(item.getId())
                 .orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
         if (itemFromDb.getOwner().getId() != userId) {
             throw new NotOwnerException("Пользователь с id " + userId + " не является владельцем " + itemFromDb.getName());
@@ -84,26 +85,27 @@ public class ItemDbService implements ItemService {
             item.setName(itemFromDb.getName());
         }
         if (item.getAvailable() == null) {
-            item.setAvailable(itemFromDb.isAvailable());
+            item.setAvailable(itemFromDb.getAvailable());
         }
-        return itemRepository.save(ItemMapper.toRegularModel(itemId, item, owner, null));
+        return itemRepository.save(item);
     }
 
     @Override
     @Transactional
-    public CommentShowDto addComment(Integer authorId, CommentDto dto, Integer itemId) {
+    public CommentResponseDto addComment(Integer authorId, Comment comment, Integer itemId) {
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
+        comment.setAuthor(author);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
+        comment.setItem(item);
         List<Booking> commentAuthorBookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartAsc(authorId, LocalDateTime.now()).stream()
                 .filter(booking -> Objects.equals(booking.getItem().getId(), itemId))
                 .toList();
         if (commentAuthorBookings.isEmpty()) {
             throw new FalseBookerException("Данный пользователь не брал в аренду данный предмет, либо аренда еще не закончилась");
         }
-        Comment newComment = CommentMapper.toRegularModel(null, author, dto, item, LocalDateTime.now());
-        Comment dbComment = commentRepository.save(newComment);
-        return CommentMapper.toShowDto(dbComment);
+        Comment dbComment = commentRepository.save(comment);
+        return CommentMapper.toResponseDto(dbComment);
     }
 }

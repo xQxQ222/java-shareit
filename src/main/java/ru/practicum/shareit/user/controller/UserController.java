@@ -6,7 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -23,9 +24,9 @@ public class UserController {
 
 
     @GetMapping
-    public List<UserDto> getAllUsers() {
+    public List<UserRequestDto> getAllUsers() {
         log.info("Пришел GET запрос /users");
-        List<UserDto> users = userService.getAllUsers();
+        List<UserRequestDto> users = userService.getAllUsers();
         log.info("Отправлен ответ GET /users {}", users);
         return users;
     }
@@ -39,18 +40,18 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@RequestBody UserDto user, @PathVariable Integer userId) {
+    public User updateUser(@RequestBody UserRequestDto user, @PathVariable Integer userId) {
         log.info("Пришел PATCH запрос /users/{} с телом: {}", userId, user);
-        User updatedUser = userService.updateUser(user, userId);
+        User updatedUser = userService.updateUser(UserMapper.toDomainModel(user, userId));
         log.info("Отправлен ответ PATCH /users/{}: {}", userId, updatedUser);
         return updatedUser;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public User addNewUser(@Valid @RequestBody UserDto newUser) {
+    public User addNewUser(@Valid @RequestBody UserRequestDto newUser) {
         log.info("Пришел POST запрос /users с телом: {}", newUser);
-        User addedUser = userService.addNewUser(newUser);
+        User addedUser = userService.addNewUser(UserMapper.toDomainModel(newUser, null));
         log.info("Отправлен ответ POST /users: {}", addedUser);
         return addedUser;
     }
