@@ -75,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwner(owner);
         Item itemFromDb = itemRepository.findById(item.getId())
                 .orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
-        if (itemFromDb.getOwner().getId() != userId) {
+        if (!Objects.equals(itemFromDb.getOwner().getId(), userId)) {
             throw new NotOwnerException("Пользователь с id " + userId + " не является владельцем " + itemFromDb.getName());
         }
         if (item.getDescription() == null) {

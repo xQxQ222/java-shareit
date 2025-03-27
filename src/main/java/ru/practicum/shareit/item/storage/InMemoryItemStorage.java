@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class InMemoryItemStorage implements ItemStorage {
@@ -20,7 +21,7 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public List<Item> getUsersItems(Integer userId) {
         return items.values().stream()
-                .filter(item -> item.getOwner().getId() == userId)
+                .filter(item -> Objects.equals(item.getOwner().getId(), userId))
                 .toList();
     }
 
@@ -57,7 +58,7 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new NotFoundException("Предмет с id " + itemId + " не найден в хранилище");
         }
         Item itemFromCollection = getItemById(itemId);
-        if (itemFromCollection.getOwner().getId() != userId) {
+        if (!Objects.equals(itemFromCollection.getOwner().getId(), userId)) {
             throw new NotOwnerException("Пользователь с id " + userId + " не является владельцем " + itemFromCollection.getName());
         }
         if (itemRequestDto.getDescription() == null) {
