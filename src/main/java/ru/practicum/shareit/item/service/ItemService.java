@@ -1,40 +1,23 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.ItemStorage;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class ItemService {
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+public interface ItemService {
 
+    List<ItemResponseDto> getUserItems(Integer userId);
 
-    public List<Item> getUserItems(Integer userId) {
-        return itemStorage.getUsersItems(userId);
-    }
+    List<Item> getItemsByCaption(String caption);
 
-    public List<Item> getItemsByCaption(String caption) {
-        return itemStorage.getItemsByText(caption);
-    }
+    ItemResponseDto getItemById(Integer itemId, Integer userId);
 
-    public Item getItemById(Integer itemId) {
-        return itemStorage.getItemById(itemId);
-    }
+    Item addItem(Integer userId, Item item);
 
-    public Item addItem(Integer userId, ItemDto itemDto) {
-        User owner = userStorage.getFullUserById(userId);
-        return itemStorage.addNewItem(owner, itemDto, null);
-    }
+    Item updateItem(Integer userId, Item item);
 
-    public Item updateItem(Integer userId, ItemDto item, int itemId) {
-        return itemStorage.updateItem(userId, item, itemId);
-    }
+    CommentResponseDto addComment(Integer authorId, Comment commentRequestDto, Integer itemId);
 }

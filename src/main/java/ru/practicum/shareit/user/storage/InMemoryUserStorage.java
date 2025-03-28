@@ -7,7 +7,7 @@ import ru.practicum.shareit.exception.exceptions.NotFoundException;
 import ru.practicum.shareit.exception.exceptions.ValidationException;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 
 import java.util.*;
 
@@ -19,9 +19,9 @@ public class InMemoryUserStorage implements UserStorage {
     private int idCounter = 0;
 
     @Override
-    public List<UserDto> getAll() {
+    public List<UserRequestDto> getAll() {
         return users.values().stream()
-                .map(UserMapper::toUserDto)
+                .map(UserMapper::toDto)
                 .toList();
     }
 
@@ -34,7 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User add(UserDto newUser) {
+    public User add(UserRequestDto newUser) {
         if (newUser.getEmail() == null) {
             throw new ValidationException("Не указана почта пользователя");
         }
@@ -45,7 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new AlreadyExistsException("Пользователь с Email " + newUser.getEmail() + " уже существует");
         }
         int newId = getNextId();
-        User user = UserMapper.toRegularModel(newUser, newId);
+        User user = UserMapper.toDomainModel(newUser, newId);
         users.put(newId, user);
         userEmails.put(newId, newUser.getEmail());
         return user;
@@ -58,15 +58,15 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User update(UserDto userDto, int userId) {
+    public User update(UserRequestDto userRequestDto, int userId) {
         if (!users.containsKey(userId)) {
             throw new NotFoundException("Пользователь с id " + userId + " не существует");
         }
-        if (userEmails.containsValue(userDto.getEmail()) && !userEmails.get(userId).equals(userDto.getEmail()) && userDto.getEmail() != null) {
-            throw new AlreadyExistsException("Другой пользователь уже использует почту " + userDto.getEmail());
+        if (userEmails.containsValue(userRequestDto.getEmail()) && !userEmails.get(userId).equals(userRequestDto.getEmail()) && userRequestDto.getEmail() != null) {
+            throw new AlreadyExistsException("Другой пользователь уже использует почту " + userRequestDto.getEmail());
         }
         User userFromCollection = users.get(userId);
-        User user = UserMapper.toRegularModel(userDto, userId);
+        User user = UserMapper.toDomainModel(userRequestDto, userId);
         if (user.getName() == null) {
             user.setName(userFromCollection.getName());
         }

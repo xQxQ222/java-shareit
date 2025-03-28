@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.storage;
 
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
@@ -14,7 +14,7 @@ public interface ItemStorage {
 
     List<Item> getItemsByText(String caption);
 
-    Item addNewItem(User owner, ItemDto item, ItemRequest request);
+    Item addNewItem(User owner, ItemRequestDto item, ItemRequest request);
 
-    Item updateItem(Integer userId, ItemDto item, int itemId);
+    Item updateItem(Integer userId, ItemRequestDto item, int itemId);
 }
