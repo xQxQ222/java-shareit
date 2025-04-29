@@ -75,7 +75,7 @@ public class CommentServiceTests {
         itemToCreate = new Item(null, "Фотоаппарат", "Nikon", true, itemOwner, null);
         item = itemService.addItem(user.getId(), itemToCreate, null);
 
-        bookingToCreate = new Booking(null, LocalDateTime.now(), LocalDateTime.now().plusSeconds(1), itemToCreate,
+        bookingToCreate = new Booking(null, LocalDateTime.now().minusHours(1), LocalDateTime.now().minusHours(1).plusSeconds(1), itemToCreate,
                 UserMapper.toDomainModel(booker), BookingStatus.WAITING);
         booking = bookingService.createBooking(bookingToCreate, booker.getId(), item.getId());
     }

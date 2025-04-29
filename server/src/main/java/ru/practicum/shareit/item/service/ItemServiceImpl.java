@@ -106,18 +106,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentResponseDto addComment(Integer authorId, Comment comment, Integer itemId) {
+        log.info(LocalDateTime.now().toString());
         User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден в базе данных"));
         comment.setAuthor(author);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет не найден в базе данных"));
         comment.setItem(item);
-        LocalDateTime now = LocalDateTime.now();
-        List<Booking> commentAuthorBookings = bookingRepository.findByBookerIdAndItemIdOrderByStartAsc(authorId, itemId).stream()
-                .filter(booking -> booking.getEnd().isBefore(now.plusHours(4)))
-                .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+        List<Booking> commentAuthorBookings = bookingRepository.findByBookerIdAndEndBeforeOrderByStartAsc(authorId, LocalDateTime.now()).stream()
+                .filter(booking -> Objects.equals(booking.getItem().getId(), itemId))
+                .filter(booking -> Objects.equals(booking.getStatus(), BookingStatus.APPROVED))
                 .toList();
-        log.info("У пользователя с id {} нашлось {} законченных бронирований по предмету с id {}", authorId, commentAuthorBookings.size(), itemId);
         if (commentAuthorBookings.isEmpty()) {
             throw new FalseBookerException("Данный пользователь не брал в аренду данный предмет, либо аренда еще не закончилась");
         }

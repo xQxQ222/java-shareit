@@ -46,7 +46,8 @@ public class ExceptionHandlerTests {
 
     @Test
     void handleDuplicateEmail() {
-        ResponseEntity<String> handle = errorHandler.handleDuplicateEmail(new EmailDuplicateException("test"));
-        assertEquals(HttpStatus.CONFLICT, handle.getStatusCode());
+        ErrorResponse handle = errorHandler.handleDuplicateEmail(new EmailDuplicateException("test"));
+        assertEquals(HttpStatus.CONFLICT, handle.getHttpStatus());
+        assertEquals("test", handle.getDescription());
     }
 }

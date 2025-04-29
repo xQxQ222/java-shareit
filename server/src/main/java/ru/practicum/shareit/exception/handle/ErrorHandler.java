@@ -17,7 +17,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleNotOwner(final NotOwnerException e) {
-        return new ErrorResponse("Пользователь не является владельцем вещи", e.getMessage(),HttpStatus.FORBIDDEN);
+        return new ErrorResponse("Пользователь не является владельцем вещи", e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler
@@ -36,7 +36,8 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleDuplicateEmail(final EmailDuplicateException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateEmail(final EmailDuplicateException e) {
+        return new ErrorResponse("Дубликат email", e.getMessage(), HttpStatus.CONFLICT);
     }
 }
