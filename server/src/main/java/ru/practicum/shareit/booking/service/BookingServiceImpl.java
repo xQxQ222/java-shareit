@@ -92,12 +92,17 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = List.of();
         switch (bookingStatus) {
             case "ALL" -> bookings = bookingRepository.findByItemOwnerIdAll(userId);
-            case "WAITING" -> bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.WAITING);
-            case "REJECTED" -> bookings = bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED);
-            case "FUTURE" -> bookings = bookingRepository.findByItemOwnerIdFuture(userId, LocalDateTime.now());
-            case "PAST" -> bookings = bookingRepository.findByItemOwnerIdPast(userId, LocalDateTime.now());
+            case "WAITING" ->
+                    bookings = bookingRepository.findByItemOwnerIdAll(userId).stream().filter(booking -> booking.getStatus() == BookingStatus.WAITING).toList();
+            case "REJECTED" ->
+                    bookings = bookingRepository.findByItemOwnerIdAll(userId).stream().filter(booking -> booking.getStatus() == BookingStatus.REJECTED).toList();
+            case "FUTURE" ->
+                    bookings = bookingRepository.findByItemOwnerIdAll(userId).stream().filter(booking -> LocalDateTime.now().plusHours(4).isBefore(booking.getStart())).toList();
+            case "PAST" ->
+                    bookings = bookingRepository.findByItemOwnerIdAll(userId).stream().filter(booking -> LocalDateTime.now().plusHours(4).isAfter(booking.getEnd())).toList();
             case "CURRENT" ->
-                    bookings = bookingRepository.findByItemOwnerIdCurrent(userId, LocalDateTime.now(), LocalDateTime.now());
+                    bookings = bookingRepository.findByItemOwnerIdAll(userId).stream().filter(booking -> LocalDateTime.now().plusHours(4).isAfter(booking.getStart()) &&
+                            LocalDateTime.now().plusHours(4).isBefore(booking.getEnd())).toList();
             default -> throw new ValidationException("Неправильно указан статус");
         }
         if (bookings.isEmpty()) {

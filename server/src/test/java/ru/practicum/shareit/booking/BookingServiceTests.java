@@ -92,6 +92,7 @@ public class BookingServiceTests {
         bookingService.approveBooking(true, booking.getId(), user.getId());
         assertEquals(1, bookingService.getBookingsForCurrentUser(user.getId(), "CURRENT").size());
         assertThrows(NotFoundException.class, () -> bookingService.getBookingsForCurrentUser(user.getId(), "PAST"));
+        assertThrows(NotFoundException.class, () -> bookingService.getBookingsForCurrentUser(user.getId(), "FUTURE"));
         assertThrows(ValidationException.class, () -> bookingService.getBookingsForCurrentUser(user.getId(), "STRANGE"));
     }
 
@@ -101,11 +102,15 @@ public class BookingServiceTests {
         User otherUser = new User(null, "Сергей", "sergey@mail.ru");
         UserResponseDto addedOtherUser = userService.addNewUser(otherUser);
         Item otherItemToCreate = new Item(null, "Фотоаппарат", "Nikon", true, itemOwner, null);
-        Booking otherBookingToCreate = new Booking(null, LocalDateTime.now(), LocalDateTime.now().plusSeconds(1), itemToCreate,
+        Booking otherBookingToCreate = new Booking(null, LocalDateTime.now(), LocalDateTime.now().plusDays(1), itemToCreate,
                 UserMapper.toDomainModel(addedOtherUser), BookingStatus.WAITING);
         Item otherItem = itemService.addItem(user.getId(), otherItemToCreate, null);
         BookingResponseDto otherBooking = bookingService.createBooking(otherBookingToCreate, addedOtherUser.getId(), otherItem.getId());
         assertEquals(2, bookingService.getBookingsByItemOwnerId(user.getId(), "ALL").size());
+        assertEquals(1, bookingService.getBookingsByItemOwnerId(user.getId(), "PAST").size());
+        assertEquals(1, bookingService.getBookingsByItemOwnerId(user.getId(), "CURRENT").size());
+        assertThrows(NotFoundException.class, () -> bookingService.getBookingsByItemOwnerId(user.getId(), "FUTURE"));
+        assertThrows(ValidationException.class, () -> bookingService.getBookingsByItemOwnerId(user.getId(), "STRANGE"));
     }
 
     private void setBookingElements() {
