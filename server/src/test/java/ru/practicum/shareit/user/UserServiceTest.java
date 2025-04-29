@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.exception.exceptions.EmailDuplicateException;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -16,8 +17,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest
@@ -90,6 +90,12 @@ public class UserServiceTest {
                 .getSingleResult();
         assertNotEquals(user.getName(), testUserV2.getName());
         assertEquals(user.getId(), updatedUser.getId());
+    }
+
+    @Test
+    void addDuplicateEmail() {
+        User newUser = new User(null, "Popugay", "ivanov.ivan@mail.ru");
+        assertThrows(EmailDuplicateException.class, () -> userService.addNewUser(newUser));
     }
 
     private void addNewUserToDB() {

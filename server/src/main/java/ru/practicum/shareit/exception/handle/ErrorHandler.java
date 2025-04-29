@@ -10,11 +10,6 @@ import ru.practicum.shareit.exception.exceptions.*;
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler
-    public ResponseEntity<String> handleAlreadyExists(final AlreadyExistsException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler
     public ResponseEntity<String> handleNotFound(final NotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
@@ -22,7 +17,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleNotOwner(final NotOwnerException e) {
-        return new ErrorResponse("Пользователь не является владельцем вещи", e.getMessage());
+        return new ErrorResponse("Пользователь не является владельцем вещи", e.getMessage(),HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler

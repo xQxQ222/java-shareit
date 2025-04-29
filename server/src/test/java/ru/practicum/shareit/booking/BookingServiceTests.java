@@ -13,8 +13,10 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.exceptions.ItemNotAvailable;
 import ru.practicum.shareit.exception.exceptions.NotFoundException;
 import ru.practicum.shareit.exception.exceptions.NotOwnerException;
+import ru.practicum.shareit.exception.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserResponseDto;
@@ -64,6 +66,9 @@ public class BookingServiceTests {
         assertEquals(bookingTest.getStart(), booking.getStart());
         assertEquals(bookingTest.getBooker().getId(), booking.getBooker().getId());
         assertEquals(bookingTest.getItem().getId(), booking.getItem().getId());
+        itemToCreate.setAvailable(false);
+        Item notAvailableItem = itemService.addItem(user.getId(), itemToCreate, null);
+        assertThrows(ItemNotAvailable.class, () -> bookingService.createBooking(bookingToCreate, user.getId(), notAvailableItem.getId()));
     }
 
     @Test
@@ -87,6 +92,7 @@ public class BookingServiceTests {
         bookingService.approveBooking(true, booking.getId(), user.getId());
         assertEquals(1, bookingService.getBookingsForCurrentUser(user.getId(), "CURRENT").size());
         assertThrows(NotFoundException.class, () -> bookingService.getBookingsForCurrentUser(user.getId(), "PAST"));
+        assertThrows(ValidationException.class, () -> bookingService.getBookingsForCurrentUser(user.getId(), "STRANGE"));
     }
 
     @Test
